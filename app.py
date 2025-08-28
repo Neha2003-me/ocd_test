@@ -55,7 +55,7 @@ if st.button("Submit"):
     if email:
         try:
             response = requests.post(
-                "https://wellnest-5zry.onrender.com/api/ocd-score",
+                "https://wellnest-5zry.onrender.com/api/test/ocd-score",
                 json={"email": email, "score": score}
             )
             if response.status_code == 200:
@@ -68,3 +68,4 @@ if st.button("Submit"):
         st.warning("No email found in URL query parameters. Score not sent to backend.")
 
     st.write("If you need help, our chatbot is here to assist you. Click the chatbot icon on the website to start a conversation!")
+
