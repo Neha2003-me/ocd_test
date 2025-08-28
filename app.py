@@ -1,10 +1,9 @@
 import streamlit as st
+import requests
 
-# Function to calculate OCD score
 def calculate_score(responses):
     return sum(responses)
 
-# Suggestions based on OCD severity level
 def get_suggestions(score):
     if 0 <= score <= 7:
         return "You might have subclinical OCD. No significant symptoms were observed. Maintain a balanced lifestyle, and if you have concerns, our chatbot can assist."
@@ -17,7 +16,9 @@ def get_suggestions(score):
     elif 32 <= score <= 40:
         return "You might have extreme OCD. Immediate consultation with a mental health professional is crucial. Please let our chatbot guide you to the right support."
 
-# Streamlit UI
+query_params = st.query_params
+email = query_params.get("email", [""])
+
 st.title("OCD Test - WellNest")
 st.write("Answer the questions below to assess the severity of your OCD symptoms. This test is based on the Yale-Brown Obsessive Compulsive Scale (Y-BOCS).")
 
@@ -49,7 +50,21 @@ for question in questions:
 
 if st.button("Submit"):
     score = calculate_score(responses)
-    st.write(f"Your total score is: {score}")
     st.write(get_suggestions(score))
+
+    if email:
+        try:
+            response = requests.post(
+                "https://wellnest-5zry.onrender.com/api/ocd-score",
+                json={"email": email, "score": score}
+            )
+            if response.status_code == 200:
+                st.success(f"Your OCD score is : {score}")
+            else:
+                st.error(f"Failed to send score. Status code: {response.status_code}")
+        except Exception as e:
+            st.error(f"Error sending score: {e}")
+    else:
+        st.warning("No email found in URL query parameters. Score not sent to backend.")
 
     st.write("If you need help, our chatbot is here to assist you. Click the chatbot icon on the website to start a conversation!")
